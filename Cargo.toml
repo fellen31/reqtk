@@ -9,3 +9,7 @@ edition = "2021"
 
 seq_io = "*"
 clap = { version = "3.0.14", features = ["derive"] }
+
+[profile.release-lto]
+inherits = "release"
+lto = true

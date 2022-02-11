@@ -46,11 +46,24 @@ fn main() {
             masked_frequency,
             reverse,
         } => {
+            // This is a really bad way to do it but,
+            // I really want to be able to pipe
+            // And can't figure out how to make the reader
+            // work to choose within one function
+            let stdinput = String::from("-");
             if *masked_frequency {
-                masked_positions(input);
+                if Some(&stdinput) == input.as_ref() {
+                    masked_positions_stdin(input);
+                } else {
+                    masked_positions(input);
+                }
             }
             if *reverse {
-                reverse_records(input);
+                if Some(&stdinput) == input.as_ref() {
+                    reverse_records_stdin(input);
+                } else {
+                    reverse_records(input);
+                }
             }
         }
     }
@@ -75,8 +88,9 @@ fn masked_positions(input: &Option<String>) {
                 if (*base as char).is_lowercase() {
                     masked_bases[i] += 1;
                     total_bases[i] += 1;
+                } else { 
+                    total_bases[i] += 1;
                 }
-                total_bases[i] += 1;
                 i += 1;
             }
         }
@@ -96,6 +110,64 @@ fn masked_positions(input: &Option<String>) {
 fn reverse_records(input: &Option<String>) {
 
       let mut reader = Reader::from_path(input.as_deref().unwrap()).unwrap();
+
+    while let Some(record) = reader.next() {
+        let record = record.expect("Error reading record");
+        let mut output = vec![];
+        record.write(&mut output).unwrap();
+        
+        let s = String::from_utf8(output);
+        let reversed: String = s.unwrap().chars().rev().collect();
+        // Create a writer
+        let stdout = io::stdout();
+        let handle = stdout.lock();
+        let mut writer = io::BufWriter::new(handle);
+        writeln!(writer, ">{}\n{}", record.id().unwrap(), reversed).unwrap();
+    }
+}
+
+
+fn masked_positions_stdin(input: &Option<String>) {
+    // Read two times
+    let mut reader = Reader::new(std::io::stdin());
+
+    let mut total_bases = vec![0,10^6];
+    let mut masked_bases = vec![0,10^6];
+    while let Some(record) = reader.next() {
+        let record = record.expect("Error reading record");
+        let mut i = 0;
+        for line in record.seq_lines() {
+            for base in line {
+                if i >= total_bases.len() {
+                    total_bases.push(0);
+                    masked_bases.push(0);
+                }
+
+                if (*base as char).is_lowercase() {
+                    masked_bases[i] += 1;
+                    total_bases[i] += 1;
+                } else {
+                    total_bases[i] += 1;
+                }
+                i += 1;
+            }
+        }
+    }
+
+
+    // Create a writer
+    let stdout = io::stdout();
+    let  handle = stdout.lock();
+    let mut writer = io::BufWriter::new(handle);
+
+    for i in 0..masked_bases.len() {
+        writeln!(writer, "{} {} {} {}", i, masked_bases[i], total_bases[i], masked_bases[i] as f32 / total_bases[i] as f32).unwrap();
+    }
+}
+
+fn reverse_records_stdin(input: &Option<String>) {
+
+      let mut reader = Reader::new(std::io::stdin());
 
     while let Some(record) = reader.next() {
         let record = record.expect("Error reading record");
