@@ -73,17 +73,17 @@ fn masked_positions(input: &Option<String>) {
     // Read two times
     let mut reader = Reader::from_path(input.as_deref().unwrap()).expect("Error reading file");
 
-    let mut total_bases = vec![0,10^6];
-    let mut masked_bases = vec![0,10^6];
+    let mut total_bases = vec![0,10^9];
+    let mut masked_bases = vec![0,10^9];
     while let Some(record) = reader.next() {
         let record = record.expect("Error reading record");
         let mut i = 0;
         for line in record.seq_lines() {
             for base in line {
-                if i >= total_bases.len() {
+                /*if i >= total_bases.len() {
                     total_bases.push(0);
                     masked_bases.push(0);
-                }
+                }*/
 
                 if (*base as char).is_lowercase() {
                     masked_bases[i] += 1;
@@ -131,17 +131,17 @@ fn masked_positions_stdin(input: &Option<String>) {
     // Read two times
     let mut reader = Reader::new(std::io::stdin());
 
-    let mut total_bases = vec![0,10^6];
-    let mut masked_bases = vec![0,10^6];
+    let mut total_bases = vec![0,10^9];
+    let mut masked_bases = vec![0,10^9];
     while let Some(record) = reader.next() {
         let record = record.expect("Error reading record");
         let mut i = 0;
         for line in record.seq_lines() {
             for base in line {
-                if i >= total_bases.len() {
+                /*if i >= total_bases.len() {
                     total_bases.push(0);
                     masked_bases.push(0);
-                }
+                }*/
 
                 if (*base as char).is_lowercase() {
                     masked_bases[i] += 1;
