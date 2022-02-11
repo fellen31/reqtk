@@ -72,38 +72,37 @@ fn main() {
 fn masked_positions(input: &Option<String>) {
     // Read two times
     let mut reader = Reader::from_path(input.as_deref().unwrap()).expect("Error reading file");
-
-    let mut total_bases = vec![0,10^9];
-    let mut masked_bases = vec![0,10^9];
+    
+    let len = 0;
+    let mut total_bases = vec![0;len];
+    let mut masked_bases = vec![0;len];
     while let Some(record) = reader.next() {
         let record = record.expect("Error reading record");
         let mut i = 0;
         for line in record.seq_lines() {
             for base in line {
-                /*if i >= total_bases.len() {
+                if i >= total_bases.len() {
                     total_bases.push(0);
                     masked_bases.push(0);
-                }*/
+                }
 
                 if (*base as char).is_lowercase() {
                     masked_bases[i] += 1;
-                    total_bases[i] += 1;
-                } else { 
-                    total_bases[i] += 1;
                 }
+                total_bases[i] += 1;
                 i += 1;
             }
         }
     }
 
-
     // Create a writer
     let stdout = io::stdout();
     let  handle = stdout.lock();
     let mut writer = io::BufWriter::new(handle);
+    
+    for (pos, (masked_bases, total_bases)) in masked_bases.iter().zip(total_bases.iter()).enumerate() {
+        writeln!(writer, "{} {} {} {}", pos, masked_bases, total_bases, *masked_bases as f32 / *total_bases as f32).unwrap();
 
-    for i in 0..masked_bases.len() {
-        writeln!(writer, "{} {} {} {}", i, masked_bases[i], total_bases[i], masked_bases[i] as f32 / total_bases[i] as f32).unwrap();
     }
 }
 
@@ -130,25 +129,23 @@ fn reverse_records(input: &Option<String>) {
 fn masked_positions_stdin(input: &Option<String>) {
     // Read two times
     let mut reader = Reader::new(std::io::stdin());
-
-    let mut total_bases = vec![0,10^9];
-    let mut masked_bases = vec![0,10^9];
+    let len = 0;
+    let mut total_bases = vec![0;len];
+    let mut masked_bases = vec![0;len];
     while let Some(record) = reader.next() {
         let record = record.expect("Error reading record");
         let mut i = 0;
         for line in record.seq_lines() {
             for base in line {
-                /*if i >= total_bases.len() {
+                if i >= total_bases.len() {
                     total_bases.push(0);
                     masked_bases.push(0);
-                }*/
+                }
 
                 if (*base as char).is_lowercase() {
                     masked_bases[i] += 1;
-                    total_bases[i] += 1;
-                } else {
-                    total_bases[i] += 1;
                 }
+                total_bases[i] += 1;
                 i += 1;
             }
         }
@@ -160,8 +157,8 @@ fn masked_positions_stdin(input: &Option<String>) {
     let  handle = stdout.lock();
     let mut writer = io::BufWriter::new(handle);
 
-    for i in 0..masked_bases.len() {
-        writeln!(writer, "{} {} {} {}", i, masked_bases[i], total_bases[i], masked_bases[i] as f32 / total_bases[i] as f32).unwrap();
+    for (pos, (masked_bases, total_bases)) in masked_bases.iter().zip(total_bases.iter()).enumerate() {
+        writeln!(writer, "{} {} {} {}", pos, masked_bases, total_bases, *masked_bases as f32 / *total_bases as f32).unwrap();
     }
 }
 
